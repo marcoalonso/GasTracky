@@ -32,6 +32,11 @@ struct MainTabView: View {
                 .tabItem {
                     Label("Configuración", systemImage: "gearshape")
                 }
+            
+            ProfileView()
+                .tabItem {
+                    Label("Perfil", systemImage: "person")
+                }
         }
         .environmentObject(viewModel) // Pasar el ViewModel a las vistas hijas
     }

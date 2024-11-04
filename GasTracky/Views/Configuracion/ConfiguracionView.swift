@@ -13,8 +13,8 @@ struct ConfiguracionView: View {
         NavigationView {
             Form {
                 Section(header: Text("Preferencias")) {
-                    Text("Opción 1")
-                    Text("Opción 2")
+                    Text("Modo oscuro")
+                    Text("Exportar datos")
                 }
                 Section(header: Text("Cuenta")) {
                     Text("Configuración de cuenta")
