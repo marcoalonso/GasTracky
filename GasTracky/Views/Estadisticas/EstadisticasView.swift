@@ -9,7 +9,7 @@ import SwiftUI
 import Charts
 
 struct EstadisticasView: View {
-    @ObservedObject var viewModel: GastoViewModel
+    @EnvironmentObject var viewModel: GastoViewModel
     
     var body: some View {
         VStack {
@@ -27,10 +27,12 @@ struct EstadisticasView: View {
             .frame(height: 300)
         }
         .padding()
+        .navigationTitle("Estadísticas")
     }
 }
 
 
+
 #Preview {
-    EstadisticasView(viewModel: GastoViewModel())
+    EstadisticasView()
 }

@@ -41,7 +41,7 @@ struct AgregarGastoView: View {
                         mostrarCategorias = true
                     }
                     .sheet(isPresented: $mostrarCategorias) {
-                        CategoriasView(viewModel: viewModel)
+                        CategoriasView()
                     }
                 }
                 

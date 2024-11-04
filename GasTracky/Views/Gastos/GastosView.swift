@@ -7,23 +7,22 @@
 
 import SwiftUI
 
-struct ContentView: View {
-    @StateObject private var viewModel = GastoViewModel()
+struct GastosView: View {
+    @EnvironmentObject var viewModel: GastoViewModel
     @State private var mostrarModal = false
-    @State private var mostrarEstadisticas = false
     @State private var gastoSeleccionado: Gasto?
-    
+
     var body: some View {
         NavigationView {
             List {
                 ForEach(viewModel.gastos) { gasto in
                     VStack(alignment: .leading) {
                         Text(gasto.categoria).font(.headline)
-                        Text("$\(gasto.cantidad, specifier: "%.2f")")
+                        Text("$ \(gasto.cantidad, specifier: "%.2f")")
                         Text(gasto.fecha, style: .date).font(.subheadline)
                         Text(gasto.descripcion).font(.subheadline)
                     }
-                    .contentShape(Rectangle()) // Permite que toda la celda sea seleccionable
+                    .contentShape(Rectangle())
                     .onTapGesture {
                         gastoSeleccionado = gasto
                     }
@@ -32,11 +31,6 @@ struct ContentView: View {
             }
             .navigationTitle("Gastos")
             .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Estadísticas") {
-                        mostrarEstadisticas = true
-                    }
-                }
                 ToolbarItem(placement: .navigationBarTrailing) {
                     Button(action: { mostrarModal = true }) {
                         Image(systemName: "plus")
@@ -49,12 +43,9 @@ struct ContentView: View {
             .sheet(item: $gastoSeleccionado) { gasto in
                 EditarGastoView(viewModel: viewModel, gasto: gasto)
             }
-            .sheet(isPresented: $mostrarEstadisticas) {
-                EstadisticasView(viewModel: viewModel)
-            }
         }
     }
-    
+
     private func deleteGasto(at offsets: IndexSet) {
         offsets.forEach { index in
             let gasto = viewModel.gastos[index]
@@ -65,6 +56,7 @@ struct ContentView: View {
 
 
 
+
 #Preview {
-    ContentView()
+    GastosView()
 }

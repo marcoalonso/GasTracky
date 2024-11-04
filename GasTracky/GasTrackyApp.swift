@@ -9,9 +9,12 @@ import SwiftUI
 
 @main
 struct GasTrackyApp: App {
+    @StateObject private var viewModel = GastoViewModel()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            MainTabView()
+                .environmentObject(viewModel)
         }
     }
 }

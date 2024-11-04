@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct CategoriasView: View {
-    @ObservedObject var viewModel: GastoViewModel
+    @EnvironmentObject var viewModel: GastoViewModel
     @State private var nuevaCategoria = ""
     
     var body: some View {
@@ -28,20 +28,20 @@ struct CategoriasView: View {
                     Button("Agregar") {
                         agregarCategoria()
                     }
-                    .disabled(nuevaCategoria.isEmpty) // Deshabilita el botón si el campo está vacío
+                    .disabled(nuevaCategoria.isEmpty)
                 }
                 .padding()
             }
             .navigationTitle("Categorías")
             .toolbar {
-                EditButton() // Permite editar la lista para eliminar categorías
+                EditButton()
             }
         }
     }
     
     private func agregarCategoria() {
         viewModel.addCategoria(nombre: nuevaCategoria)
-        nuevaCategoria = "" // Limpia el campo de texto después de agregar la categoría
+        nuevaCategoria = ""
     }
     
     private func deleteCategoria(at offsets: IndexSet) {
@@ -53,6 +53,7 @@ struct CategoriasView: View {
 }
 
 
+
 #Preview {
-    CategoriasView(viewModel: GastoViewModel(dataSource: SwiftDataService.shared))
+    CategoriasView()
 }
