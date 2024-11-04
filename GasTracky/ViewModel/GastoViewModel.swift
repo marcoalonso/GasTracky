@@ -29,7 +29,7 @@ class GastoViewModel: ObservableObject {
         insertGasto(gasto: newGasto)
     }
     
-    func deleteGasto(gasto: Gasto) {
+    func deleteGasto(_ gasto: Gasto) {
         dataSource.remove(gasto)
         gastos = []
         getGastos()
