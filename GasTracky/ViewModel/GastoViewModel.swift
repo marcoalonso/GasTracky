@@ -24,8 +24,8 @@ class GastoViewModel: ObservableObject {
     var gastos: [Gasto] = []
     var categorias: [Categoria] = []
     
-    func addGasto(cantidad: Double, fecha: Date, categoria: String) {
-        let newGasto = Gasto(id: UUID(), cantidad: cantidad, fecha: fecha, categoria: categoria)
+    func addGasto(cantidad: Double, fecha: Date, categoria: String, descripcion: String) {
+        let newGasto = Gasto(id: UUID(), cantidad: cantidad, fecha: fecha, categoria: categoria, descripcion: descripcion)
         insertGasto(gasto: newGasto)
     }
     
@@ -35,10 +35,11 @@ class GastoViewModel: ObservableObject {
         getGastos()
     }
     
-    func updateGasto(gasto: Gasto, newCantidad: Double, newFecha: Date, newCategoria: String) {
+    func updateGasto(gasto: Gasto, newCantidad: Double, newFecha: Date, newCategoria: String, newDescripcion: String) {
         gasto.cantidad = newCantidad
         gasto.fecha = newFecha
         gasto.categoria = newCategoria
+        gasto.descripcion = newDescripcion
         
         gastos = []
         getGastos()
@@ -68,6 +69,14 @@ class GastoViewModel: ObservableObject {
     
     func getCategorias() {
         categorias = dataSource.fetch()
+        
+        // Si no hay categorías, agregamos las categorías por defecto
+        if categorias.isEmpty {
+            let categoriasPorDefecto = ["Alimentación", "Auto", "Hogar"]
+            for nombre in categoriasPorDefecto {
+                addCategoria(nombre: nombre)
+            }
+        }
     }
     
     private func insertCategoria(categoria: Categoria) {
@@ -76,4 +85,3 @@ class GastoViewModel: ObservableObject {
         getCategorias()
     }
 }
-

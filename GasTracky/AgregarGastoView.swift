@@ -14,6 +14,7 @@ struct AgregarGastoView: View {
     @State private var cantidad: String = ""
     @State private var fecha = Date()
     @State private var categoriaSeleccionada: String = ""
+    @State private var descripcion: String = "" // Nueva propiedad para la descripción
     @State private var mostrarCategorias = false
     
     var body: some View {
@@ -43,6 +44,11 @@ struct AgregarGastoView: View {
                         CategoriasView(viewModel: viewModel)
                     }
                 }
+                
+                Section(header: Text("Descripción")) { // Nueva sección para la descripción
+                    TextField("Descripción del gasto", text: $descripcion)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                }
             }
             .navigationTitle("Nuevo Gasto")
             .toolbar {
@@ -68,13 +74,14 @@ struct AgregarGastoView: View {
     
     private func guardarGasto() {
         if let cantidadDouble = Double(cantidad), !categoriaSeleccionada.isEmpty {
-            viewModel.addGasto(cantidad: cantidadDouble, fecha: fecha, categoria: categoriaSeleccionada)
+            viewModel.addGasto(cantidad: cantidadDouble, fecha: fecha, categoria: categoriaSeleccionada, descripcion: descripcion)
             dismiss()
         } else {
             // Aquí puedes agregar una alerta para notificar al usuario que complete todos los campos
         }
     }
 }
+
 
 
 

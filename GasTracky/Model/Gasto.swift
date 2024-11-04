@@ -14,11 +14,14 @@ class Gasto {
     var cantidad: Double
     var fecha: Date
     var categoria: String
+    var descripcion: String  
     
-    init(id: UUID = UUID(), cantidad: Double, fecha: Date, categoria: String) {
+    init(id: UUID = UUID(), cantidad: Double, fecha: Date, categoria: String, descripcion: String) {
         self.id = id
         self.cantidad = cantidad
         self.fecha = fecha
         self.categoria = categoria
+        self.descripcion = descripcion
     }
 }
+

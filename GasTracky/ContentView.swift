@@ -16,9 +16,13 @@ struct ContentView: View {
             List {
                 ForEach(viewModel.gastos) { gasto in
                     VStack(alignment: .leading) {
-                        Text(gasto.categoria).font(.headline)
-                        Text("\(gasto.cantidad, specifier: "%.2f") USD")
-                        Text(gasto.fecha, style: .date).font(.subheadline)
+                        Text(gasto.categoria)
+                            .font(.headline)
+                        Text("$\(gasto.cantidad, specifier: "%.2f")")
+                        Text(gasto.fecha, style: .date)
+                            .font(.subheadline)
+                        Text(gasto.descripcion)
+                            .font(.subheadline)
                     }
                 }
             }
