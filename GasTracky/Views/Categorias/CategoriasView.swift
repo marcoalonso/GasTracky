@@ -10,6 +10,7 @@ import SwiftUI
 struct CategoriasView: View {
     @EnvironmentObject var viewModel: GastoViewModel
     @State private var nuevaCategoria = ""
+    @Environment(\.dismiss) var dismiss
     
     var body: some View {
         NavigationView {
@@ -19,7 +20,7 @@ struct CategoriasView: View {
                         Text(categoria.nombre)
                     }
                     .onDelete(perform: deleteCategoria)
-                }
+                }.formStyle(.grouped)
                 
                 HStack {
                     TextField("Nueva categoría", text: $nuevaCategoria)
@@ -33,6 +34,13 @@ struct CategoriasView: View {
                 .padding()
             }
             .navigationTitle("Categorías")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cerrar") {
+                        dismiss()
+                    }
+                }
+            }
             .toolbar {
                 EditButton()
             }

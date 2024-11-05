@@ -20,37 +20,59 @@ struct AgregarGastoView: View {
     var body: some View {
         NavigationView {
             Form {
-                Section(header: Text("Cantidad")) {
-                    TextField("Cantidad", text: $cantidad)
+                Section(header: Text("¿Cuánto gastaste?")) {
+                    TextField("$100", text: $cantidad)
                         .keyboardType(.decimalPad)
                 }
                 
-                Section(header: Text("Fecha")) {
+                Section(header: Text("¿Cuándo?")) {
                     DatePicker("Fecha", selection: $fecha, displayedComponents: .date)
                 }
                 
                 Section(header: Text("Categoría")) {
-                    Picker("Selecciona una categoría", selection: $categoriaSeleccionada) {
-                        ForEach(viewModel.categorias, id: \.id) { categoria in
-                            Text(categoria.nombre).tag(categoria.nombre)
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        LazyHGrid(rows: [GridItem(.fixed(50))], spacing: 20) {
+                            ForEach(viewModel.categorias, id: \.id) { categoria in
+                                VStack {
+                                    Image(systemName: "tag")
+                                        .font(.largeTitle)
+                                        .foregroundColor(categoriaSeleccionada == categoria.nombre ? .blue : .gray)
+                                    Text(categoria.nombre)
+                                        .font(.caption)
+                                }
+                                .frame(width: 80, height: 80)
+                                .background(categoriaSeleccionada == categoria.nombre ? Color.blue.opacity(0.2) : Color.gray.opacity(0.1))
+                                .cornerRadius(10)
+                                .onTapGesture {
+                                    categoriaSeleccionada = categoria.nombre
+                                }
+                            }
                         }
+                        .frame(height: 100)
                     }
-                    .pickerStyle(MenuPickerStyle())
+                    .frame(height: 100)
                     
-                    Button("Ver todas las categorías") {
+                    // Botón para mostrar la vista de categorías en un sheet
+                    Button(action: {
                         mostrarCategorias = true
-                    }
-                    .sheet(isPresented: $mostrarCategorias) {
-                        CategoriasView()
+                    }) {
+                        HStack {
+                            Image(systemName: "plus.circle")
+                            Text("Administrar Categorías")
+                        }
+                        .foregroundColor(.blue)
                     }
                 }
+                
+                
                 
                 Section(header: Text("Descripción")) { // Nueva sección para la descripción
                     TextField("Descripción del gasto", text: $descripcion)
                         .textFieldStyle(RoundedBorderTextFieldStyle())
                 }
             }
-            .navigationTitle("Nuevo Gasto")
+            .navigationTitle("Nuevo gasto")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
                     Button("Guardar") {
@@ -62,6 +84,10 @@ struct AgregarGastoView: View {
                         dismiss()
                     }
                 }
+            }
+            .sheet(isPresented: $mostrarCategorias) {
+                CategoriasView()
+                    .environmentObject(viewModel)
             }
         }
         .onAppear {

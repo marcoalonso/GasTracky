@@ -71,12 +71,20 @@ struct GastosView: View {
                 // Lista de gastos filtrados
                 List {
                     ForEach(gastosFiltrados) { gasto in
-                        VStack(alignment: .leading) {
-                            Text(gasto.categoria).font(.headline)
+                        HStack(alignment: .center) {
+                            Image(systemName: "dollarsign.circle")
+                                .resizable()
+                                .frame(width: 32, height: 32)
+                                .font(.callout)
+                            
+                            Text(gasto.categoria)
+                                .font(.headline)
+                            //Text(gasto.descripcion)
+                            Spacer()
                             Text("$ \(gasto.cantidad, specifier: "%.2f")")
-                            Text(gasto.fecha, style: .date).font(.subheadline)
-                            Text(gasto.descripcion).font(.subheadline)
+                                .font(.subheadline)
                         }
+                        
                         .contentShape(Rectangle())
                         .onTapGesture {
                             gastoSeleccionado = gasto
@@ -84,15 +92,15 @@ struct GastosView: View {
                     }
                     .onDelete(perform: deleteGasto)
                 }
-            }
-            .navigationTitle("Gastos")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: { mostrarModal = true }) {
-                        Image(systemName: "plus")
-                    }
+                Button(action: { mostrarModal = true }) {
+                    Image("plus")
+                        .resizable()
+                        .frame(width: 50, height: 50, alignment: .bottom)
                 }
-            }
+                
+            }//Vstack
+            .navigationTitle("Gastos")
+            .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $mostrarModal) {
                 AgregarGastoView(viewModel: viewModel)
             }
@@ -207,4 +215,5 @@ struct GastosView: View {
 
 #Preview {
     GastosView()
+        .environmentObject(GastoViewModel())
 }

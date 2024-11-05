@@ -62,8 +62,14 @@ class GastoViewModel: ObservableObject {
     }
     
     func deleteCategoria(categoria: Categoria) {
+        // Eliminar todos los gastos relacionados con esta categoría
+        let gastosRelacionados = gastos.filter { $0.categoria == categoria.nombre }
+        for gasto in gastosRelacionados {
+            deleteGasto(gasto) // Elimina cada gasto relacionado
+        }
+        
+        // Eliminar la categoría de la base de datos y recargar la lista de categorías
         dataSource.remove(categoria)
-        categorias = []
         getCategorias()
     }
     
