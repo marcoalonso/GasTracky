@@ -7,31 +7,16 @@
 
 import SwiftUI
 
-enum FiltroTiempo: String, CaseIterable {
-    case dia
-    case semana
-    case mes
-    case anio
-    
-    var titulo: String {
-        switch self {
-        case .dia: return "Día"
-        case .semana: return "Semana"
-        case .mes: return "Mes"
-        case .anio: return "Año"
-        }
-    }
-}
-
 struct GastosView: View {
     @EnvironmentObject var viewModel: GastoViewModel
     @State private var mostrarModal = false
     @State private var gastoSeleccionado: Gasto?
-
-    // Estado para el filtro de tiempo y la fecha de referencia
     @State private var filtroSeleccionado: FiltroTiempo = .dia
     @State private var fechaReferencia: Date = Date()
-
+    
+    // Estado para controlar la expansión de categorías
+    @State private var categoriasExpandida: [String: Bool] = [:]
+    
     var body: some View {
         NavigationView {
             VStack {
@@ -52,14 +37,12 @@ struct GastosView: View {
                     
                     Spacer()
                     
-                    // Label para mostrar la descripción del periodo seleccionado
                     Text(descripcionPeriodo)
                         .font(.headline)
                         .foregroundColor(.gray)
                     
                     Spacer()
                     
-                    // Ocultar el botón "Siguiente" si el periodo es actual o en el futuro
                     if !esPeriodoActual {
                         Button(action: mostrarPeriodoPosterior) {
                             Label("", systemImage: "chevron.right")
@@ -68,37 +51,61 @@ struct GastosView: View {
                 }
                 .padding(.horizontal)
 
-                // Lista de gastos filtrados
+                // Lista de gastos agrupados por categoría
                 List {
-                    ForEach(gastosFiltrados) { gasto in
-                        HStack(alignment: .center) {
-                            Image(systemName: "dollarsign.circle")
-                                .resizable()
-                                .frame(width: 32, height: 32)
-                                .font(.callout)
+                    ForEach(gastosAgrupados.keys.sorted(), id: \.self) { categoria in
+                        Section {
+                            // Encabezado de cada categoría con el total y el botón desplegable
+                            HStack {
+                                Image(systemName: "dollarsign.circle")
+                                    .frame(width: 32, height: 32)
+                                
+                                Text(categoria)
+                                    .font(.headline)
+                                Spacer()
+                                Text("$ \(gastosAgrupados[categoria]?.total ?? 0.0, specifier: "%.2f")")
+                                    .font(.subheadline)
+                                // Mostrar el icono de despliegue solo si hay dos o más gastos en la categoría
+                                if let detalles = gastosAgrupados[categoria]?.detalles, detalles.count > 1 {
+                                    Image(systemName: "chevron.down.circle")
+                                        .rotationEffect(categoriasExpandida[categoria] == true ? .degrees(180) : .degrees(0))
+                                        .onTapGesture {
+                                            toggleExpandirCategoria(categoria)
+                                        }
+                                }
+                            }
                             
-                            Text(gasto.categoria)
-                                .font(.headline)
-                            //Text(gasto.descripcion)
-                            Spacer()
-                            Text("$ \(gasto.cantidad, specifier: "%.2f")")
-                                .font(.subheadline)
+                            
+                            // Desglose de los gastos en la categoría si está expandida
+                            if categoriasExpandida[categoria] == true {
+                                ForEach(gastosAgrupados[categoria]?.detalles ?? [], id: \.id) { gasto in
+                                    HStack {
+                                        Text(gasto.descripcion)
+                                            .font(.subheadline)
+                                        Spacer()
+                                        Text("$ \(gasto.cantidad, specifier: "%.2f")")
+                                            .font(.footnote)
+                                    }
+                                    .contentShape(Rectangle())
+                                    .onTapGesture {
+                                        gastoSeleccionado = gasto
+                                    }
+                                }
+                            }
                         }
                         
-                        .contentShape(Rectangle())
-                        .onTapGesture {
-                            gastoSeleccionado = gasto
-                        }
                     }
                     .onDelete(perform: deleteGasto)
                 }
+                .listStyle(InsetGroupedListStyle())
+                
                 Button(action: { mostrarModal = true }) {
                     Image("plus")
                         .resizable()
                         .frame(width: 50, height: 50, alignment: .bottom)
                 }
                 
-            }//Vstack
+            }
             .navigationTitle("Gastos")
             .navigationBarTitleDisplayMode(.inline)
             .sheet(isPresented: $mostrarModal) {
@@ -110,6 +117,22 @@ struct GastosView: View {
         }
     }
 
+    // Computed property para agrupar los gastos y calcular el total por categoría
+    private var gastosAgrupados: [String: (total: Double, detalles: [Gasto])] {
+        var agrupados: [String: (total: Double, detalles: [Gasto])] = [:]
+        
+        for gasto in gastosFiltrados {
+            if agrupados[gasto.categoria] != nil {
+                agrupados[gasto.categoria]?.total += gasto.cantidad
+                agrupados[gasto.categoria]?.detalles.append(gasto)
+            } else {
+                agrupados[gasto.categoria] = (total: gasto.cantidad, detalles: [gasto])
+            }
+        }
+        
+        return agrupados
+    }
+    
     // Computed property para obtener los gastos filtrados según el filtro de tiempo y la fecha de referencia
     private var gastosFiltrados: [Gasto] {
         let calendar = Calendar.current
@@ -127,7 +150,6 @@ struct GastosView: View {
         }
     }
 
-    // Propiedad computada para la descripción del periodo actual
     private var descripcionPeriodo: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "es_ES")
@@ -156,7 +178,6 @@ struct GastosView: View {
         }
     }
 
-    // Computed property para verificar si el periodo seleccionado es el actual o en el futuro
     private var esPeriodoActual: Bool {
         let calendar = Calendar.current
         switch filtroSeleccionado {
@@ -171,7 +192,6 @@ struct GastosView: View {
         }
     }
 
-    // Función para retroceder al periodo anterior
     private func mostrarPeriodoAnterior() {
         let calendar = Calendar.current
         switch filtroSeleccionado {
@@ -186,7 +206,6 @@ struct GastosView: View {
         }
     }
 
-    // Función para avanzar al periodo siguiente
     private func mostrarPeriodoPosterior() {
         let calendar = Calendar.current
         switch filtroSeleccionado {
@@ -207,7 +226,13 @@ struct GastosView: View {
             viewModel.deleteGasto(gasto)
         }
     }
+    
+    // Función para alternar el estado de expansión de una categoría
+    private func toggleExpandirCategoria(_ categoria: String) {
+        categoriasExpandida[categoria]?.toggle() ?? (categoriasExpandida[categoria] = true)
+    }
 }
+
 
 
 

@@ -19,10 +19,10 @@ struct EstadisticasView: View {
         return screenHeight * 0.6
     }
 
-    // Filtrar los gastos según el filtro de tiempo seleccionado
-    private var gastosFiltrados: [Gasto] {
+    // Filtrar y agrupar los gastos según el filtro de tiempo seleccionado
+    private var gastosFiltradosYAgrupados: [CategoriaGasto] {
         let calendar = Calendar.current
-        return viewModel.gastos.filter { gasto in
+        let gastosFiltrados = viewModel.gastos.filter { gasto in
             switch filtroSeleccionado {
             case .dia:
                 return calendar.isDate(gasto.fecha, inSameDayAs: fechaReferencia)
@@ -34,11 +34,19 @@ struct EstadisticasView: View {
                 return calendar.isDate(gasto.fecha, equalTo: fechaReferencia, toGranularity: .year)
             }
         }
+        
+        // Agrupar y sumar los gastos por categoría
+        let gastosAgrupados = Dictionary(grouping: gastosFiltrados, by: { $0.categoria })
+            .map { (categoria, gastos) -> CategoriaGasto in
+                let total = gastos.reduce(0) { $0 + $1.cantidad }
+                return CategoriaGasto(categoria: categoria, total: total)
+            }
+        
+        return gastosAgrupados
     }
     
     var body: some View {
         VStack {
-            // Picker para seleccionar el filtro de tiempo
             Picker("Filtrar por", selection: $filtroSeleccionado) {
                 ForEach(FiltroTiempo.allCases, id: \.self) { filtro in
                     Text(filtro.titulo).tag(filtro)
@@ -47,7 +55,6 @@ struct EstadisticasView: View {
             .pickerStyle(SegmentedPickerStyle())
             .padding()
             
-            // Botones para navegar entre periodos de tiempo y el label de fecha actual
             HStack {
                 Button(action: mostrarPeriodoAnterior) {
                     Label("", systemImage: "chevron.left")
@@ -55,7 +62,6 @@ struct EstadisticasView: View {
                 
                 Spacer()
                 
-                // Label para mostrar la descripción del periodo seleccionado
                 Text(descripcionPeriodo)
                     .font(.headline)
                     .foregroundColor(.gray)
@@ -70,7 +76,6 @@ struct EstadisticasView: View {
             }
             .padding(.horizontal)
             
-            // Picker para seleccionar el tipo de gráfico
             Picker("Tipo de gráfico", selection: $tipoGrafico) {
                 ForEach(TipoGrafico.allCases, id: \.self) { tipo in
                     Text(tipo.titulo).tag(tipo)
@@ -79,12 +84,11 @@ struct EstadisticasView: View {
             .pickerStyle(SegmentedPickerStyle())
             .padding()
 
-            // Muestra el gráfico según el tipo seleccionado y los datos filtrados
             switch tipoGrafico {
             case .dona:
-                GraficoDona(gastos: gastosFiltrados, height: dynamicHeight)
+                GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
             case .barras:
-                GraficoBarras(gastos: gastosFiltrados, height: dynamicHeight)
+                GraficoBarras(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
             }
             
             Spacer()
@@ -93,7 +97,6 @@ struct EstadisticasView: View {
         .navigationTitle("Estadísticas")
     }
     
-    // Computed property para la descripción del periodo actual
     private var descripcionPeriodo: String {
         let formatter = DateFormatter()
         formatter.locale = Locale(identifier: "es_ES")
@@ -105,11 +108,8 @@ struct EstadisticasView: View {
         case .semana:
             let startOfWeek = Calendar.current.date(from: Calendar.current.dateComponents([.yearForWeekOfYear, .weekOfYear], from: fechaReferencia))!
             let endOfWeek = Calendar.current.date(byAdding: .day, value: 6, to: startOfWeek)!
-            
             formatter.dateFormat = "d MMM"
-            let start = formatter.string(from: startOfWeek)
-            let end = formatter.string(from: endOfWeek)
-            return "\(start) - \(end)"
+            return "\(formatter.string(from: startOfWeek)) - \(formatter.string(from: endOfWeek))"
         case .mes:
             formatter.dateFormat = "MMMM yyyy"
             return formatter.string(from: fechaReferencia)
@@ -119,7 +119,6 @@ struct EstadisticasView: View {
         }
     }
     
-    // Computed property para verificar si el periodo seleccionado es el actual o en el futuro
     private var esPeriodoActual: Bool {
         let calendar = Calendar.current
         switch filtroSeleccionado {
@@ -134,7 +133,6 @@ struct EstadisticasView: View {
         }
     }
     
-    // Función para retroceder al periodo anterior
     private func mostrarPeriodoAnterior() {
         let calendar = Calendar.current
         switch filtroSeleccionado {
@@ -149,7 +147,6 @@ struct EstadisticasView: View {
         }
     }
     
-    // Función para avanzar al periodo siguiente
     private func mostrarPeriodoPosterior() {
         let calendar = Calendar.current
         switch filtroSeleccionado {
@@ -165,7 +162,13 @@ struct EstadisticasView: View {
     }
 }
 
-// MARK: - Tipo de Gráfico Enum
+// Estructura para representar el total por categoría
+struct CategoriaGasto: Identifiable {
+    let id = UUID()
+    let categoria: String
+    let total: Double
+}
+
 
 enum TipoGrafico: String, CaseIterable {
     case dona
@@ -178,6 +181,7 @@ enum TipoGrafico: String, CaseIterable {
         }
     }
 }
+
 
 #Preview {
     EstadisticasView()

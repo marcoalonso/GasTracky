@@ -9,22 +9,18 @@ import SwiftUI
 import Charts
 
 struct GraficoBarras: View {
-    var gastos: [Gasto]
+    var gastos: [CategoriaGasto]
     var height: CGFloat
 
     var body: some View {
         Chart(gastos) { gasto in
             BarMark(
                 x: .value("Categoría", gasto.categoria),
-                y: .value("Cantidad", gasto.cantidad)
+                y: .value("Cantidad", gasto.total)
             )
             .foregroundStyle(by: .value("Categoría", gasto.categoria))
         }
         .frame(height: height)
     }
-}
-
-#Preview {
-    GraficoBarras(gastos: MockData.shared.gastos, height: 300)
 }
 
