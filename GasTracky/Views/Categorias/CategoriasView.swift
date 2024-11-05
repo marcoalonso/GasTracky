@@ -9,52 +9,46 @@ import SwiftUI
 
 struct CategoriasView: View {
     @EnvironmentObject var viewModel: GastoViewModel
-    @State private var mostrarNuevaCategoria = false
-
-    // Define columnas responsivas
-    private let columnas = [
-        GridItem(.adaptive(minimum: 100))
-    ]
-
+    @State private var nuevaCategoria = ""
+    
     var body: some View {
         NavigationView {
-            ScrollView {
-                LazyVGrid(columns: columnas, spacing: 20) {
+            VStack {
+                List {
                     ForEach(viewModel.categorias, id: \.id) { categoria in
-                        VStack {
-                            Circle()
-                                .fill(Color.blue.opacity(0.2))
-                                .frame(width: 60, height: 60)
-                                .overlay(
-                                    Image(systemName: "star.fill") // Cambia a la imagen de la categoría cuando esté disponible
-                                        .resizable()
-                                        .scaledToFit()
-                                        .frame(width: 30, height: 30)
-                                        .foregroundColor(.blue)
-                                )
-                            Text(categoria.nombre)
-                                .font(.caption)
-                                .foregroundColor(.primary)
-                        }
+                        Text(categoria.nombre)
                     }
+                    .onDelete(perform: deleteCategoria)
+                }
+                
+                HStack {
+                    TextField("Nueva categoría", text: $nuevaCategoria)
+                        .textFieldStyle(RoundedBorderTextFieldStyle())
+                    
+                    Button("Agregar") {
+                        agregarCategoria()
+                    }
+                    .disabled(nuevaCategoria.isEmpty)
                 }
                 .padding()
             }
             .navigationTitle("Categorías")
             .toolbar {
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {
-                        mostrarNuevaCategoria = true
-                    }) {
-                        Image(systemName: "plus")
-                    }
-                }
-            }
-            .sheet(isPresented: $mostrarNuevaCategoria) {
-                NuevaCategoriaView(viewModel: viewModel)
+                EditButton()
             }
         }
-        
+    }
+    
+    private func agregarCategoria() {
+        viewModel.addCategoria(nombre: nuevaCategoria)
+        nuevaCategoria = ""
+    }
+    
+    private func deleteCategoria(at offsets: IndexSet) {
+        offsets.forEach { index in
+            let categoria = viewModel.categorias[index]
+            viewModel.deleteCategoria(categoria: categoria)
+        }
     }
 }
 

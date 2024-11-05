@@ -63,12 +63,9 @@ struct NuevaCategoriaView: View {
     }
     
     private func agregarCategoria() {
-        // Agrega la nueva categoría al ViewModel y cierra la vista
-        if let icono = iconoSeleccionado {
-            let nuevaCategoria = Categoria(nombre: nombreCategoria)
-            viewModel.addCategoria(nombre: nuevaCategoria.nombre) // Aquí puedes guardar el icono en el modelo si tienes un campo para eso
-            dismiss()
-        }
+        let nuevaCategoria = Categoria(nombre: nombreCategoria)
+        viewModel.addCategoria(nombre: nuevaCategoria.nombre)
+        dismiss()
     }
 }
 
