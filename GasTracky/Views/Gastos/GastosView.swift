@@ -20,7 +20,6 @@ struct GastosView: View {
     var body: some View {
         NavigationView {
             VStack {
-                // Picker para seleccionar el filtro de tiempo
                 Picker("Filtrar por", selection: $filtroSeleccionado) {
                     ForEach(FiltroTiempo.allCases, id: \.self) { filtro in
                         Text(filtro.titulo).tag(filtro)
@@ -29,7 +28,6 @@ struct GastosView: View {
                 .pickerStyle(SegmentedPickerStyle())
                 .padding()
 
-                // Botones para navegar entre periodos de tiempo y el label de fecha actual
                 HStack {
                     Button(action: mostrarPeriodoAnterior) {
                         Label("", systemImage: "chevron.left")
@@ -51,32 +49,32 @@ struct GastosView: View {
                 }
                 .padding(.horizontal)
 
-                // Lista de gastos agrupados por categoría
                 List {
                     ForEach(gastosAgrupados.keys.sorted(), id: \.self) { categoria in
                         Section {
-                            // Encabezado de cada categoría con el total y el botón desplegable
-                            HStack {
-                                Image(systemName: "dollarsign.circle")
-                                    .frame(width: 32, height: 32)
-                                
-                                Text(categoria)
-                                    .font(.headline)
-                                Spacer()
-                                Text("$ \(gastosAgrupados[categoria]?.total ?? 0.0, specifier: "%.2f")")
-                                    .font(.subheadline)
-                                // Mostrar el icono de despliegue solo si hay dos o más gastos en la categoría
-                                if let detalles = gastosAgrupados[categoria]?.detalles, detalles.count > 1 {
-                                    Image(systemName: "chevron.down.circle")
-                                        .rotationEffect(categoriasExpandida[categoria] == true ? .degrees(180) : .degrees(0))
-                                        .onTapGesture {
-                                            toggleExpandirCategoria(categoria)
-                                        }
+                            NavigationLink(destination: GastosPorCategoriaView(
+                                categoria: categoria,
+                                gastos: gastosAgrupados[categoria]?.detalles ?? []
+                            )) {
+                                HStack {
+                                    // Mostrar el icono de despliegue solo si hay dos o más gastos en la categoría
+                                    if let detalles = gastosAgrupados[categoria]?.detalles, detalles.count > 1 {
+                                        Image(systemName: "chevron.down.circle")
+                                            .rotationEffect(categoriasExpandida[categoria] == true ? .degrees(180) : .degrees(0))
+                                            .onTapGesture {
+                                                toggleExpandirCategoria(categoria)
+                                            }
+                                    }
+                                    
+                                    Text(categoria)
+                                        .font(.headline)
+                                    Spacer()
+                                    Text("$ \(gastosAgrupados[categoria]?.total ?? 0.0, specifier: "%.2f")")
+                                        .font(.subheadline)
                                 }
                             }
                             
-                            
-                            // Desglose de los gastos en la categoría si está expandida
+                            // Mostrar gastos de la categoría solo si está expandida
                             if categoriasExpandida[categoria] == true {
                                 ForEach(gastosAgrupados[categoria]?.detalles ?? [], id: \.id) { gasto in
                                     HStack {
@@ -93,7 +91,6 @@ struct GastosView: View {
                                 }
                             }
                         }
-                        
                     }
                     .onDelete(perform: deleteGasto)
                 }
@@ -104,7 +101,6 @@ struct GastosView: View {
                         .resizable()
                         .frame(width: 50, height: 50, alignment: .bottom)
                 }
-                
             }
             .navigationTitle("Gastos")
             .navigationBarTitleDisplayMode(.inline)
@@ -117,7 +113,6 @@ struct GastosView: View {
         }
     }
 
-    // Computed property para agrupar los gastos y calcular el total por categoría
     private var gastosAgrupados: [String: (total: Double, detalles: [Gasto])] {
         var agrupados: [String: (total: Double, detalles: [Gasto])] = [:]
         
@@ -133,7 +128,6 @@ struct GastosView: View {
         return agrupados
     }
     
-    // Computed property para obtener los gastos filtrados según el filtro de tiempo y la fecha de referencia
     private var gastosFiltrados: [Gasto] {
         let calendar = Calendar.current
         return viewModel.gastos.filter { gasto in
@@ -227,7 +221,6 @@ struct GastosView: View {
         }
     }
     
-    // Función para alternar el estado de expansión de una categoría
     private func toggleExpandirCategoria(_ categoria: String) {
         categoriasExpandida[categoria]?.toggle() ?? (categoriasExpandida[categoria] = true)
     }
