@@ -45,8 +45,21 @@ struct EstadisticasView: View {
         return gastosAgrupados
     }
     
+    // Calcular el total gastado en el período seleccionado
+    private var totalGastado: Double {
+        gastosFiltradosYAgrupados.reduce(0) { $0 + $1.total }
+    }
+    
     var body: some View {
         VStack {
+            // Mostrar el total gastado
+            Text("Total gastado: $\(totalGastado, specifier: "%.2f")")
+                .font(.title2)
+                .bold()
+                .padding(.vertical, 8)
+                .frame(maxWidth: .infinity)
+                .background(Color(.systemGray6))
+            
             Picker("Filtrar por", selection: $filtroSeleccionado) {
                 ForEach(FiltroTiempo.allCases, id: \.self) { filtro in
                     Text(filtro.titulo).tag(filtro)
