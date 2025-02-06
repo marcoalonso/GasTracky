@@ -5,12 +5,14 @@
 //  Created by Marco Alonso on 04/11/24.
 //
 
-import Foundation
 import SwiftUI
+import LocalAuthentication
 
 struct ConfiguracionView: View {
     @AppStorage("isDarkMode") private var isDarkMode: Bool = false
-
+    @AppStorage("useFaceID") private var useFaceID: Bool = false
+    @StateObject private var authManager = BiometricAuthManager()
+    
     var body: some View {
         NavigationView {
             Form {
@@ -21,11 +23,23 @@ struct ConfiguracionView: View {
                         }
                     Text("Exportar datos")
                 }
+
                 Section(header: Text("Cuenta")) {
                     Text("Configuración de cuenta")
                 }
+
                 Section(header: Text("Seguridad")) {
-                    Text("Habilitar autenticación biométrica")
+                    Toggle("Solicitar FaceID al iniciar", isOn: $useFaceID)
+                        .onChange(of: useFaceID) { newValue, _ in
+                            if newValue {
+                                authManager.authenticateUser { success in
+                                    if !success {
+                                        // Si la autenticación falla, desactiva el toggle
+                                        useFaceID = false
+                                    }
+                                }
+                            }
+                        }
                 }
             }
             .navigationTitle("Configuración")
@@ -34,11 +48,9 @@ struct ConfiguracionView: View {
     }
 
     private func updateAppearance() {
-        // Forcing the appearance update if needed.
         UIApplication.shared.windows.first?.overrideUserInterfaceStyle = isDarkMode ? .dark : .light
     }
 }
-
 
 
 #Preview {
