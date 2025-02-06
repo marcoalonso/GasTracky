@@ -18,51 +18,51 @@ struct CategoriasView: View {
     var body: some View {
         NavigationView {
             ScrollView {
-                VStack {
-                    
-                    
-                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 16) {
-                        ForEach(viewModel.categorias, id: \.id) { categoria in
-                            Button(action: {
-                                selectedCategoria = categoria
-                                showEditModal = true
-                            }) {
-                                Text(categoria.nombre)
-                                    .frame(maxWidth: .infinity, minHeight: 80)
-                                    .background(Color.gray.opacity(0.2))
-                                    .cornerRadius(10)
-                                    .padding(4)
-                            }
-                        }
-                        
+                LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 16) {
+                    ForEach(viewModel.categorias, id: \.id) { categoria in
                         Button(action: {
-                            showAddModal = true
+                            selectedCategoria = categoria
+                            showEditModal = true
                         }) {
-                            VStack {
-                                Image(systemName: "plus.circle")
-                                    .font(.largeTitle)
-                                Text("Agregar categoría")
-                                    .font(.caption)
-                            }
-                            .frame(maxWidth: .infinity, minHeight: 80)
-                            .background(Color.blue.opacity(0.2))
-                            .cornerRadius(10)
-                            .padding(4)
+                            Text(categoria.nombre)
+                                .frame(maxWidth: .infinity, minHeight: 80)
+                                .background(Color.gray.opacity(0.2))
+                                .cornerRadius(10)
+                                .padding(4)
                         }
                     }
-                    .padding()
+
+                    Button(action: {
+                        showAddModal = true
+                    }) {
+                        VStack {
+                            Image(systemName: "plus.circle")
+                                .font(.largeTitle)
+                            Text("Agregar categoría")
+                                .font(.caption)
+                        }
+                        .frame(maxWidth: .infinity, minHeight: 80)
+                        .background(Color.blue.opacity(0.2))
+                        .cornerRadius(10)
+                        .padding(4)
+                    }
                 }
-                .navigationTitle("Categorías")
+                .padding()
             }
-            
+            .navigationTitle("Categorías")
+            .toolbar {
+                ToolbarItem(placement: .navigationBarLeading) {
+                    Button("Cerrar") {
+                        dismiss()
+                    }
+                }
+            }
         }
         .sheet(isPresented: $showAddModal) {
             AgregarCategoriaView(viewModel: viewModel, showModal: $showAddModal)
         }
         .sheet(isPresented: $showEditModal) {
-            if let categoria = selectedCategoria {
-                EditarCategoriaView(categoria: categoria, viewModel: viewModel, showModal: $showEditModal)
-            }
+            EditarCategoriaView(categoria: Binding(get: { selectedCategoria ?? Categoria(id: UUID(), nombre: "") }, set: { selectedCategoria = $0 }), viewModel: viewModel, showModal: $showEditModal)
         }
     }
 }
@@ -72,4 +72,5 @@ struct CategoriasView: View {
 
 #Preview {
     CategoriasView()
+        .environmentObject(GastoViewModel())
 }

@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct EditarCategoriaView: View {
-    var categoria: Categoria
+    @Binding var categoria: Categoria
     @ObservedObject var viewModel: GastoViewModel
     @Binding var showModal: Bool
     @State private var nuevoNombre = ""
@@ -51,6 +51,7 @@ struct EditarCategoriaView: View {
     }
 
     private func renombrarCategoria() {
+        categoria.nombre = nuevoNombre
         viewModel.updateCategoria(categoria: categoria, nuevoNombre: nuevoNombre)
         showModal = false
     }
@@ -66,5 +67,5 @@ struct EditarCategoriaView: View {
     let sampleCategoria = Categoria(id: UUID(), nombre: "Alimentación")
     viewModel.addCategoria(nombre: "Transporte")
     
-    return EditarCategoriaView(categoria: sampleCategoria, viewModel: viewModel, showModal: .constant(true))
+    return EditarCategoriaView(categoria: .constant(sampleCategoria), viewModel: viewModel, showModal: .constant(true))
 }

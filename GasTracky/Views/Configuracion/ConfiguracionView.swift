@@ -19,8 +19,16 @@ struct ConfiguracionView: View {
                 Section(header: Text("Cuenta")) {
                     Text("Configuración de cuenta")
                 }
+                Section(header: Text("Seguridad")) {
+                    Text("Habilitar autenticacion biometrica.")
+                }
             }
             .navigationTitle("Configuración")
         }
     }
 }
+
+#Preview {
+    ConfiguracionView()
+}
+    
