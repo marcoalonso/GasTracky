@@ -61,6 +61,12 @@ class GastoViewModel: ObservableObject {
         insertCategoria(categoria: newCategoria)
     }
     
+    func updateCategoria(categoria: Categoria, nuevoNombre: String) {
+        if let index = categorias.firstIndex(where: { $0.id == categoria.id }) {
+            categorias[index].nombre = nuevoNombre
+        }
+    }
+    
     func deleteCategoria(categoria: Categoria) {
         // Eliminar todos los gastos relacionados con esta categoría
         let gastosRelacionados = gastos.filter { $0.categoria == categoria.nombre }

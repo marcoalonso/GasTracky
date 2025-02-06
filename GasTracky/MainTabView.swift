@@ -23,11 +23,6 @@ struct MainTabView: View {
                     Label("Estadísticas", systemImage: "chart.bar")
                 }
 
-            CategoriasView()
-                .tabItem {
-                    Label("Categorías", systemImage: "list.bullet")
-                }
-
             ConfiguracionView()
                 .tabItem {
                     Label("Configuración", systemImage: "gearshape")

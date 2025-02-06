@@ -10,52 +10,59 @@ import SwiftUI
 struct CategoriasView: View {
     @EnvironmentObject var viewModel: GastoViewModel
     @State private var nuevaCategoria = ""
+    @State private var showAddModal = false
+    @State private var showEditModal = false
+    @State private var selectedCategoria: Categoria?
     @Environment(\.dismiss) var dismiss
     
     var body: some View {
         NavigationView {
-            VStack {
-                List {
-                    ForEach(viewModel.categorias, id: \.id) { categoria in
-                        Text(categoria.nombre)
-                    }
-                    .onDelete(perform: deleteCategoria)
-                }.formStyle(.grouped)
-                
-                HStack {
-                    TextField("Nueva categoría", text: $nuevaCategoria)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
+            ScrollView {
+                VStack {
                     
-                    Button("Agregar") {
-                        agregarCategoria()
+                    
+                    LazyVGrid(columns: Array(repeating: GridItem(.flexible()), count: 3), spacing: 16) {
+                        ForEach(viewModel.categorias, id: \.id) { categoria in
+                            Button(action: {
+                                selectedCategoria = categoria
+                                showEditModal = true
+                            }) {
+                                Text(categoria.nombre)
+                                    .frame(maxWidth: .infinity, minHeight: 80)
+                                    .background(Color.gray.opacity(0.2))
+                                    .cornerRadius(10)
+                                    .padding(4)
+                            }
+                        }
+                        
+                        Button(action: {
+                            showAddModal = true
+                        }) {
+                            VStack {
+                                Image(systemName: "plus.circle")
+                                    .font(.largeTitle)
+                                Text("Agregar categoría")
+                                    .font(.caption)
+                            }
+                            .frame(maxWidth: .infinity, minHeight: 80)
+                            .background(Color.blue.opacity(0.2))
+                            .cornerRadius(10)
+                            .padding(4)
+                        }
                     }
-                    .disabled(nuevaCategoria.isEmpty)
+                    .padding()
                 }
-                .padding()
+                .navigationTitle("Categorías")
             }
-            .navigationTitle("Categorías")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cerrar") {
-                        dismiss()
-                    }
-                }
-            }
-            .toolbar {
-                EditButton()
-            }
+            
         }
-    }
-    
-    private func agregarCategoria() {
-        viewModel.addCategoria(nombre: nuevaCategoria)
-        nuevaCategoria = ""
-    }
-    
-    private func deleteCategoria(at offsets: IndexSet) {
-        offsets.forEach { index in
-            let categoria = viewModel.categorias[index]
-            viewModel.deleteCategoria(categoria: categoria)
+        .sheet(isPresented: $showAddModal) {
+            AgregarCategoriaView(viewModel: viewModel, showModal: $showAddModal)
+        }
+        .sheet(isPresented: $showEditModal) {
+            if let categoria = selectedCategoria {
+                EditarCategoriaView(categoria: categoria, viewModel: viewModel, showModal: $showEditModal)
+            }
         }
     }
 }
