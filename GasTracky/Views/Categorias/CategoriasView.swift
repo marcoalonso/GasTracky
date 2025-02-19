@@ -50,19 +50,33 @@ struct CategoriasView: View {
                 .padding()
             }
             .navigationTitle("Categorías")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .navigationBarLeading) {
-                    Button("Cerrar") {
+                    Button(action: {
                         dismiss()
+                    }) {
+                        Text("Cerrar")
+                            .font(.title3)
+                            .foregroundStyle(.red)
                     }
                 }
             }
         }
         .sheet(isPresented: $showAddModal) {
-            AgregarCategoriaView(viewModel: viewModel, showModal: $showAddModal)
+            AgregarCategoriaView(
+                viewModel: viewModel,
+                showModal: $showAddModal)
+            .presentationDetents([.fraction(0.25), .medium])
         }
         .sheet(isPresented: $showEditModal) {
-            EditarCategoriaView(categoria: Binding(get: { selectedCategoria ?? Categoria(id: UUID(), nombre: "") }, set: { selectedCategoria = $0 }), viewModel: viewModel, showModal: $showEditModal)
+            EditarCategoriaView(
+                categoria: Binding(
+                    get: { selectedCategoria ?? Categoria(id: UUID(), nombre: "") },
+                    set: { selectedCategoria = $0 }),
+                viewModel: viewModel,
+                showModal: $showEditModal)
+            .presentationDetents([.fraction(0.25), .medium])
         }
     }
 }

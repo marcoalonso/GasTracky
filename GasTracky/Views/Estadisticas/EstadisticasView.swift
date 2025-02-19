@@ -18,6 +18,42 @@ struct EstadisticasView: View {
         let screenHeight = UIScreen.main.bounds.height
         return screenHeight * 0.6
     }
+    
+    private var dateSelector: some View {
+        VStack {
+            Picker("Filtrar por", selection: $filtroSeleccionado) {
+                ForEach(FiltroTiempo.allCases, id: \.self) { filtro in
+                    Text(filtro.titulo).tag(filtro)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+
+            HStack {
+                Button(action: mostrarPeriodoAnterior) {
+                    Label("", systemImage: "chevron.left")
+                        .foregroundStyle(.black)
+                }
+                
+                Spacer()
+                
+                Text(descripcionPeriodo)
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                
+                Spacer()
+                
+                if !esPeriodoActual {
+                    Button(action: mostrarPeriodoPosterior) {
+                        Label("", systemImage: "chevron.right")
+                            .foregroundStyle(.black)
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
 
     // Filtrar y agrupar los gastos según el filtro de tiempo seleccionado
     private var gastosFiltradosYAgrupados: [CategoriaGasto] {
@@ -51,63 +87,60 @@ struct EstadisticasView: View {
     }
     
     var body: some View {
-        VStack {
-            // Mostrar el total gastado
-            Text("Total gastado: $\(totalGastado, specifier: "%.2f")")
-                .font(.title2)
-                .bold()
-                .padding(.vertical, 8)
-                .frame(maxWidth: .infinity)
-                .background(Color(.systemGray6))
-            
-            Picker("Filtrar por", selection: $filtroSeleccionado) {
-                ForEach(FiltroTiempo.allCases, id: \.self) { filtro in
-                    Text(filtro.titulo).tag(filtro)
-                }
-            }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding()
-            
-            HStack {
-                Button(action: mostrarPeriodoAnterior) {
-                    Label("", systemImage: "chevron.left")
+        ScrollView(showsIndicators: false) {
+            VStack {
+                // Mostrar el total gastado
+                VStack {
+                    Text("Total gastado: $\(totalGastado, specifier: "%.2f")")
+                        .font(.title2)
+                        .padding() // Padding interno para separar el contenido del borde
+                        .background(
+                            RoundedRectangle(cornerRadius: 10)
+                                .fill(Color(.systemGray6)) // Color gris claro
+                                .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
+                        )
                 }
                 
-                Spacer()
+                dateSelector
+                    .padding() // Padding interno para separar el contenido del borde
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(.systemGray6)) // Color gris claro
+                            .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
+                    )
+                    .padding() // Padding externo para separar el rectángulo de otros elementos en la pantalla
                 
-                Text(descripcionPeriodo)
-                    .font(.headline)
-                    .foregroundColor(.gray)
                 
-                Spacer()
-                
-                if !esPeriodoActual {
-                    Button(action: mostrarPeriodoPosterior) {
-                        Label("", systemImage: "chevron.right")
+                VStack {
+                    Picker("Tipo de gráfico", selection: $tipoGrafico) {
+                        ForEach(TipoGrafico.allCases, id: \.self) { tipo in
+                            Text(tipo.titulo).tag(tipo)
+                        }
                     }
+                    .pickerStyle(SegmentedPickerStyle())
+                    .padding()
+                    .background(
+                        RoundedRectangle(cornerRadius: 10)
+                            .fill(Color(.systemGray6)) // Color gris claro
+                            .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
+                    )
                 }
-            }
-            .padding(.horizontal)
-            
-            Picker("Tipo de gráfico", selection: $tipoGrafico) {
-                ForEach(TipoGrafico.allCases, id: \.self) { tipo in
-                    Text(tipo.titulo).tag(tipo)
+                
+                switch tipoGrafico {
+                case .dona:
+                    GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
+                case .barras:
+                    GraficoBarras(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
+                case .puntos:
+                    GraficoPuntos(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
+                case .lineas:
+                    GraficoLinea(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
                 }
+                
+                Spacer()
             }
-            .pickerStyle(SegmentedPickerStyle())
-            .padding()
-
-            switch tipoGrafico {
-            case .dona:
-                GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
-            case .barras:
-                GraficoBarras(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
-            }
-            
-            Spacer()
+            .padding(.horizontal, 12)
         }
-        .padding()
-        .navigationTitle("Estadísticas")
     }
     
     private var descripcionPeriodo: String {
@@ -186,11 +219,15 @@ struct CategoriaGasto: Identifiable {
 enum TipoGrafico: String, CaseIterable {
     case dona
     case barras
+    case puntos
+    case lineas
     
     var titulo: String {
         switch self {
         case .dona: return "Dona"
         case .barras: return "Barras"
+        case .puntos: return "Puntos"
+        case .lineas: return "Líneas"
         }
     }
 }

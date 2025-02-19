@@ -17,37 +17,55 @@ struct GastosView: View {
     // Estado para controlar la expansión de categorías
     @State private var categoriasExpandida: [String: Bool] = [:]
     
+    private var dateSelector: some View {
+        VStack {
+            Picker("Filtrar por", selection: $filtroSeleccionado) {
+                ForEach(FiltroTiempo.allCases, id: \.self) { filtro in
+                    Text(filtro.titulo).tag(filtro)
+                }
+            }
+            .pickerStyle(SegmentedPickerStyle())
+            .padding()
+
+            HStack {
+                Button(action: mostrarPeriodoAnterior) {
+                    Label("", systemImage: "chevron.left")
+                        .foregroundStyle(.black)
+                }
+                
+                Spacer()
+                
+                Text(descripcionPeriodo)
+                    .font(.headline)
+                    .foregroundColor(.gray)
+                
+                Spacer()
+                
+                if !esPeriodoActual {
+                    Button(action: mostrarPeriodoPosterior) {
+                        Label("", systemImage: "chevron.right")
+                            .foregroundStyle(.black)
+                    }
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
     var body: some View {
         NavigationView {
             VStack {
-                Picker("Filtrar por", selection: $filtroSeleccionado) {
-                    ForEach(FiltroTiempo.allCases, id: \.self) { filtro in
-                        Text(filtro.titulo).tag(filtro)
-                    }
-                }
-                .pickerStyle(SegmentedPickerStyle())
-                .padding()
+                 
+                dateSelector
+                .padding() // Padding interno para separar el contenido del borde
+                .background(
+                    RoundedRectangle(cornerRadius: 10)
+                        .fill(Color(.systemGray6)) // Color gris claro
+                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
+                )
+                .padding() // Padding externo para separar el rectángulo de otros elementos en la pantalla
 
-                HStack {
-                    Button(action: mostrarPeriodoAnterior) {
-                        Label("", systemImage: "chevron.left")
-                    }
-                    
-                    Spacer()
-                    
-                    Text(descripcionPeriodo)
-                        .font(.headline)
-                        .foregroundColor(.gray)
-                    
-                    Spacer()
-                    
-                    if !esPeriodoActual {
-                        Button(action: mostrarPeriodoPosterior) {
-                            Label("", systemImage: "chevron.right")
-                        }
-                    }
-                }
-                .padding(.horizontal)
+                
 
                 List {
                     ForEach(gastosAgrupados.keys.sorted(), id: \.self) { categoria in
@@ -102,8 +120,6 @@ struct GastosView: View {
                         .frame(width: 50, height: 50, alignment: .bottom)
                 }
             }
-            .navigationTitle("Gastos")
-            .navigationBarTitleDisplayMode(.inline)
             .fullScreenCover(isPresented: $mostrarModal, content: {
                 AgregarGastoView(viewModel: viewModel)
             })

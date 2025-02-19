@@ -38,3 +38,4 @@ struct GraficoDona: View {
 #Preview {
     GraficoDona(gastos: MockData.shared.gastosAgrupados, height: 300)
 }
+

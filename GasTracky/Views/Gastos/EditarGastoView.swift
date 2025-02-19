@@ -4,8 +4,6 @@
 //
 //  Created by Marco Alonso on 04/11/24.
 //
-
-import Foundation
 import SwiftUI
 
 struct EditarGastoView: View {
@@ -16,7 +14,11 @@ struct EditarGastoView: View {
     @State private var cantidad: String
     @State private var fecha: Date
     @State private var categoriaSeleccionada: String
+    @State private var mostrarCategorias = false
     @State private var descripcion: String
+    @State private var showDatePicker = false
+    @State private var showAlert = false
+    @State private var alertMessage = ""
     
     init(viewModel: GastoViewModel, gasto: Gasto) {
         self.viewModel = viewModel
@@ -29,56 +31,72 @@ struct EditarGastoView: View {
     
     var body: some View {
         NavigationView {
-            Form {
-                Section(header: Text("Cantidad")) {
-                    TextField("Cantidad", text: $cantidad)
-                        .keyboardType(.decimalPad)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 20) {
+                    InputField(title: "¿Cuánto gastaste?", text: $cantidad, placeholder: "$100", keyboardType: .decimalPad)
+                    DatePickerField(formattedDate: formattedDate, showDatePicker: $showDatePicker, fecha: $fecha)
+                    CategoryPicker(viewModel: viewModel, categoriaSeleccionada: $categoriaSeleccionada, mostrarCategorias: $mostrarCategorias)
+                    InputField(title: "Descripción", text: $descripcion, placeholder: "Descripción del gasto")
+                    Spacer()
                 }
-                
-                Section(header: Text("Fecha")) {
-                    DatePicker("Fecha", selection: $fecha, displayedComponents: .date)
-                }
-                
-                Section(header: Text("Categoría")) {
-                    Picker("Selecciona una categoría", selection: $categoriaSeleccionada) {
-                        ForEach(viewModel.categorias, id: \.id) { categoria in
-                            Text(categoria.nombre).tag(categoria.nombre)
-                        }
-                    }
-                    .pickerStyle(MenuPickerStyle())
-                }
-                
-                Section(header: Text("Descripción")) {
-                    TextField("Descripción del gasto", text: $descripcion)
-                        .textFieldStyle(RoundedBorderTextFieldStyle())
-                }
+                .padding()
             }
             .navigationTitle("Editar Gasto")
+            .navigationBarTitleDisplayMode(.inline)
             .toolbar {
                 ToolbarItem(placement: .confirmationAction) {
-                    Button("Guardar") {
+                    Button(action: {
                         guardarCambios()
+                    }) {
+                        Text("Guardar")
+                            .font(.title3)
+                            .foregroundStyle(.green)
                     }
                 }
                 ToolbarItem(placement: .cancellationAction) {
-                    Button("Cancelar") {
+                    Button(action: {
                         dismiss()
+                    }) {
+                        Text("Cancelar")
+                            .font(.title3)
+                            .foregroundStyle(.red)
                     }
                 }
             }
+            .sheet(isPresented: $mostrarCategorias) {
+                CategoriasView().environmentObject(viewModel)
+            }
+            .alert(isPresented: $showAlert) {
+                Alert(title: Text("¡Atención!"), message: Text(alertMessage), dismissButton: .default(Text("OK")))
+            }
         }
-        .onAppear {
-            viewModel.getCategorias() // Asegura que las categorías estén cargadas
-        }
+        .onAppear { viewModel.getCategorias() }
+    }
+    
+    private var formattedDate: String {
+        let formatter = DateFormatter()
+        formatter.dateStyle = .medium
+        return formatter.string(from: fecha)
     }
     
     private func guardarCambios() {
+        if cantidad.trimmingCharacters(in: .whitespaces).isEmpty {
+            alertMessage = "Por favor ingresa una cantidad."
+            showAlert = true
+            return
+        }
         if let cantidadDouble = Double(cantidad) {
             viewModel.updateGasto(gasto: gasto, newCantidad: cantidadDouble, newFecha: fecha, newCategoria: categoriaSeleccionada, newDescripcion: descripcion)
             dismiss()
         } else {
-            // Aquí puedes agregar una alerta para notificar al usuario que complete correctamente el campo de cantidad
+            // Puedes agregar una alerta aquí si es necesario
         }
     }
 }
 
+// MARK: - Preview
+struct EditarGastoView_Previews: PreviewProvider {
+    static var previews: some View {
+        EditarGastoView(viewModel: GastoViewModel(), gasto: Gasto(id: UUID(), cantidad: 100.0, fecha: Date(), categoria: "Alimentación", descripcion: "Cena en restaurante"))
+    }
+}

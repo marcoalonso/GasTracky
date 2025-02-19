@@ -13,12 +13,12 @@ struct AgregarCategoriaView: View {
     @State private var nombreCategoria = ""
 
     var body: some View {
-        VStack(spacing: 20) {
+        VStack(spacing: 8) {
             Text("Nueva Categoría")
-                .font(.title)
+                .font(.headline)
                 .bold()
 
-            TextField("Nombre de la categoría", text: $nombreCategoria)
+            TextField("Nombre", text: $nombreCategoria)
                 .textFieldStyle(RoundedBorderTextFieldStyle())
                 .padding()
 
@@ -29,6 +29,7 @@ struct AgregarCategoriaView: View {
                     .background(Color.blue)
                     .foregroundColor(.white)
                     .cornerRadius(10)
+                    .shadow(radius: 8)
             }
             .disabled(nombreCategoria.isEmpty)
             .padding(.horizontal)
@@ -44,4 +45,5 @@ struct AgregarCategoriaView: View {
 
 #Preview {
     AgregarCategoriaView(viewModel: GastoViewModel(), showModal: .constant(true))
+        .presentationDetents([.fraction(0.25), .medium])
 }

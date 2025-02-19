@@ -35,3 +35,5 @@ struct GraficoBarras: View {
 #Preview {
     GraficoBarras(gastos: MockData.shared.gastosAgrupados, height: 300)
 }
+
+
