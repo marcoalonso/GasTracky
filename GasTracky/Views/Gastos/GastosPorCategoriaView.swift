@@ -26,7 +26,6 @@ struct GastosPorCategoriaView: View {
 
     var body: some View {
         VStack {
-            // Mostrar Fecha de los gastos
             Text(fechaFormateada)
                 .font(.title3)
                 .bold()

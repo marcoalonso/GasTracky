@@ -104,9 +104,9 @@ struct GastosView: View {
             }
             .navigationTitle("Gastos")
             .navigationBarTitleDisplayMode(.inline)
-            .sheet(isPresented: $mostrarModal) {
+            .fullScreenCover(isPresented: $mostrarModal, content: {
                 AgregarGastoView(viewModel: viewModel)
-            }
+            })
             .sheet(item: $gastoSeleccionado) { gasto in
                 EditarGastoView(viewModel: viewModel, gasto: gasto)
             }
