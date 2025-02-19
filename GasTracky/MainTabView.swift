@@ -23,12 +23,12 @@ struct MainTabView: View {
                     Label("Estadísticas", systemImage: "chart.bar")
                 }
 
-            /*
+           
             ConfiguracionView()
                 .tabItem {
                     Label("Configuración", systemImage: "gearshape")
                 }
-             */
+            
         }
         .environmentObject(viewModel) // Pasar el ViewModel a las vistas hijas
     }

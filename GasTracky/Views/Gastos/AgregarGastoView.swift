@@ -26,6 +26,14 @@ struct AgregarGastoView: View {
         return formatter.string(from: fecha)
     }
     
+    private var descripcionPlaceholder: String {
+        if cantidad.isEmpty {
+            return "En qué gastaste tu dinero"
+        } else {
+            return "En qué gastaste tus \(cantidad) pesos."
+        }
+    }
+    
     var body: some View {
         NavigationView {
             ScrollView {
@@ -33,7 +41,7 @@ struct AgregarGastoView: View {
                     InputField(title: "¿Cuánto gastaste?", text: $cantidad, placeholder: "$100", keyboardType: .decimalPad)
                     DatePickerField(formattedDate: formattedDate, showDatePicker: $showDatePicker, fecha: $fecha)
                     CategoryPicker(viewModel: viewModel, categoriaSeleccionada: $categoriaSeleccionada, mostrarCategorias: $mostrarCategorias)
-                    InputField(title: "Descripción", text: $descripcion, placeholder: "Descripción")
+                    InputField(title: "Descripción", text: $descripcion, placeholder: descripcionPlaceholder)
                     Spacer()
                 }
                 .padding()
@@ -81,11 +89,12 @@ struct AgregarGastoView: View {
             showAlert(message: "Por favor selecciona una categoría.")
             return
         }
-        
-        //if descripcion.isEmpty {
-          //  showAlert(message: "Por favor agrega una breve descripción del gasto.")
-            //return
-        //}
+        /*
+        if descripcion.isEmpty {
+            showAlert(message: "Por favor agrega una breve descripción del gasto.")
+            return
+        }
+         */
         viewModel.addGasto(cantidad: cantidadDouble, fecha: fecha, categoria: categoriaSeleccionada, descripcion: descripcion)
         dismiss()
     }

@@ -13,6 +13,7 @@ struct GastosView: View {
     @State private var gastoSeleccionado: Gasto?
     @State private var filtroSeleccionado: FiltroTiempo = .dia
     @State private var fechaReferencia: Date = Date()
+    @State private var lastAccess: Date = Date()
     
     // Estado para controlar la expansión de categorías
     @State private var categoriasExpandida: [String: Bool] = [:]
@@ -120,6 +121,9 @@ struct GastosView: View {
                         .frame(width: 50, height: 50, alignment: .bottom)
                 }
             }
+            .onAppear {
+                saveLastAccess()
+            }
             .fullScreenCover(isPresented: $mostrarModal, content: {
                 AgregarGastoView(viewModel: viewModel)
             })
@@ -127,6 +131,16 @@ struct GastosView: View {
                 EditarGastoView(viewModel: viewModel, gasto: gasto)
             }
         }
+    }
+    
+    private func saveLastAccess() {
+        let defaults = UserDefaults.standard
+        
+        if let storedDate = defaults.object(forKey: "lastAccess") as? Date {
+            lastAccess = storedDate
+        }
+        
+        defaults.set(Date(), forKey: "lastAccess")
     }
 
     private var gastosAgrupados: [String: (total: Double, detalles: [Gasto])] {
