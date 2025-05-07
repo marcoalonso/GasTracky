@@ -8,6 +8,12 @@
 import SwiftUI
 
 struct GastosView: View {
+    private enum LocalConstants {
+        static let paddingFour: CGFloat   = 4.0
+        static let paddingTen: CGFloat = 10.0
+        static let paddingSixten: CGFloat   = 16.0
+    }
+    
     @EnvironmentObject var viewModel: GastoViewModel
     @State private var mostrarModal = false
     @State private var gastoSeleccionado: Gasto?
@@ -52,11 +58,11 @@ struct GastosView: View {
         }
         .padding() // Padding interno para separar el contenido del borde
         .background(
-            RoundedRectangle(cornerRadius: 10)
+            RoundedRectangle(cornerRadius: LocalConstants.paddingTen)
                 .fill(Color(.systemGray6)) // Color gris claro
                 .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
         )
-        .padding(.horizontal, 10) // Padding externo para separar el rectángulo de otros elementos en la pantalla
+        .padding(.horizontal, LocalConstants.paddingTen)
     }
     
     private var dynamicHeight: CGFloat {
@@ -98,14 +104,14 @@ struct GastosView: View {
     private var totalGastadoView: some View {
         Text("Total gastado: $\(totalGastado, specifier: "%.2f")")
             .font(.title3)
-            .padding(10)                         // padding interno
-            .frame(maxWidth: .infinity)        // se expande en ancho
+            .padding(LocalConstants.paddingTen)
+            .frame(maxWidth: .infinity)
             .background(
-                RoundedRectangle(cornerRadius: 10)
+                RoundedRectangle(cornerRadius: LocalConstants.paddingTen)
                     .fill(Color(.systemGray6))
                     .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
             )
-            .padding(.horizontal, 10)          // mismo padding horizontal que el picker
+            .padding(.horizontal, LocalConstants.paddingTen)          // mismo padding horizontal que el picker
     }
     
     private var graficoGastos: some View {
@@ -116,22 +122,22 @@ struct GastosView: View {
                 HStack {
                     Spacer()
                     Button(action: { mostrarModal = true }) {
-                        Image("plus2")
+                        Image("plus")
                             .resizable()
                             .frame(width: 50, height: 50, alignment: .bottom)
-                            .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
+                            .shadow(color: Color.black.opacity(0.6), radius: 5, x: 2, y: 0)
                     }
                 }
                 Spacer()
             }
         }
-        .padding() // Padding interno para separar el contenido del borde
-            .background(
-                RoundedRectangle(cornerRadius: 10)
-                    .fill(Color(.systemGray6)) // Color gris claro
-                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
-            )
-            .padding(.horizontal, 10) // Padding externo para separar el rectángulo de otros elementos en la pantalla
+        .padding()
+        .background(
+            RoundedRectangle(cornerRadius: LocalConstants.paddingTen)
+                .fill(Color(.systemGray6))
+                .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
+        )
+        .padding(.horizontal, LocalConstants.paddingTen)
 
     }
     
