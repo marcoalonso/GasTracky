@@ -128,7 +128,7 @@ struct EstadisticasView: View {
                 
                 switch tipoGrafico {
                 case .dona:
-                    GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
+                    GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight, periodoNombre: "dia")
                 case .barras:
                     GraficoBarras(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
                 case .puntos:

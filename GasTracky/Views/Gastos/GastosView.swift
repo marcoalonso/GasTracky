@@ -110,11 +110,9 @@ struct GastosView: View {
     
     private var graficoGastos: some View {
         ZStack {
-            GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
+            GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight, periodoNombre: filtroSeleccionado.titulo)
                 
-
             VStack {
-                Spacer()
                 HStack {
                     Spacer()
                     Button(action: { mostrarModal = true }) {
@@ -123,6 +121,7 @@ struct GastosView: View {
                             .frame(width: 50, height: 50, alignment: .bottom)
                     }
                 }
+                Spacer()
             }
         }
         .padding() // Padding interno para separar el contenido del borde

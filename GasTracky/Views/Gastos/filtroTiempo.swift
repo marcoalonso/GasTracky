@@ -15,10 +15,10 @@ enum FiltroTiempo: String, CaseIterable {
     
     var titulo: String {
         switch self {
-        case .dia: return "Día"
-        case .semana: return "Semana"
-        case .mes: return "Mes"
-        case .anio: return "Año"
+        case .dia: return "día"
+        case .semana: return "semana"
+        case .mes: return "mes"
+        case .anio: return "año"
         }
     }
 }
