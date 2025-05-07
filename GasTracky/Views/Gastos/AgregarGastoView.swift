@@ -59,7 +59,7 @@ struct AgregarGastoView: View {
                 }
                 ToolbarItem(placement: .cancellationAction) {
                     Button(action: { dismiss() }) {
-                        Image(systemName: "xmark.circle").foregroundStyle(.red)
+                        Image(systemName: "xmark").foregroundStyle(.red)
                     }
                 }
             }

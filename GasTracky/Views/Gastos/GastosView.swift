@@ -116,9 +116,10 @@ struct GastosView: View {
                 HStack {
                     Spacer()
                     Button(action: { mostrarModal = true }) {
-                        Image("plus")
+                        Image("plus2")
                             .resizable()
                             .frame(width: 50, height: 50, alignment: .bottom)
+                            .shadow(color: Color.black.opacity(0.3), radius: 5, x: 0, y: 2)
                     }
                 }
                 Spacer()
@@ -161,8 +162,9 @@ struct GastosView: View {
                                     Text(categoria)
                                         .font(.headline)
                                     Spacer()
-                                    Text("$ \(gastosAgrupados[categoria]?.total ?? 0.0, specifier: "%.2f")")
+                                    Text("$\(gastosAgrupados[categoria]?.total ?? 0.0, specifier: "%.1f")")
                                         .font(.subheadline)
+                                        .bold()
                                 }
                             }
                             
@@ -170,10 +172,11 @@ struct GastosView: View {
                             if categoriasExpandida[categoria] == true {
                                 ForEach(gastosAgrupados[categoria]?.detalles ?? [], id: \.id) { gasto in
                                     HStack {
+                                        Text("  ")
                                         Text(gasto.descripcion)
                                             .font(.subheadline)
                                         Spacer()
-                                        Text("$ \(gasto.cantidad, specifier: "%.2f")")
+                                        Text("$ \(gasto.cantidad, specifier: "%.1f")")
                                             .font(.footnote)
                                     }
                                     .contentShape(Rectangle())
@@ -186,15 +189,17 @@ struct GastosView: View {
                     }
                     .onDelete(perform: deleteGasto)
                 }
-                .listStyle(InsetGroupedListStyle())
+                .listStyle(InsetListStyle())
                 
                 
             }
             .onAppear {
                 saveLastAccess()
             }
-            .fullScreenCover(isPresented: $mostrarModal, content: {
+            .sheet(isPresented: $mostrarModal, content: {
                 AgregarGastoView(viewModel: viewModel)
+                    .presentationDetents([.fraction(0.8), .large])
+                    .presentationDragIndicator(.visible)
             })
             .sheet(item: $gastoSeleccionado) { gasto in
                 EditarGastoView(viewModel: viewModel, gasto: gasto)
