@@ -208,13 +208,6 @@ struct EstadisticasView: View {
     }
 }
 
-// Estructura para representar el total por categoría
-struct CategoriaGasto: Identifiable {
-    let id = UUID()
-    let categoria: String
-    let total: Double
-}
-
 
 enum TipoGrafico: String, CaseIterable {
     case dona

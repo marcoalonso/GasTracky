@@ -32,6 +32,7 @@ struct GraficoDona: View {
             }
         }
         .frame(height: height)
+        .padding(.horizontal, 10)
     }
 }
 

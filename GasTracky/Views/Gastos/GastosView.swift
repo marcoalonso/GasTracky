@@ -26,8 +26,7 @@ struct GastosView: View {
                 }
             }
             .pickerStyle(SegmentedPickerStyle())
-            .padding()
-
+            
             HStack {
                 Button(action: mostrarPeriodoAnterior) {
                     Label("", systemImage: "chevron.left")
@@ -51,22 +50,97 @@ struct GastosView: View {
             }
             .padding(.horizontal)
         }
+        .padding() // Padding interno para separar el contenido del borde
+        .background(
+            RoundedRectangle(cornerRadius: 10)
+                .fill(Color(.systemGray6)) // Color gris claro
+                .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
+        )
+        .padding(.horizontal, 10) // Padding externo para separar el rectángulo de otros elementos en la pantalla
+    }
+    
+    private var dynamicHeight: CGFloat {
+        let screenHeight = UIScreen.main.bounds.height
+        return screenHeight * 0.25
+    }
+    
+    // Filtrar y agrupar los gastos según el filtro de tiempo seleccionado
+    private var gastosFiltradosYAgrupados: [CategoriaGasto] {
+        let calendar = Calendar.current
+        let gastosFiltrados = viewModel.gastos.filter { gasto in
+            switch filtroSeleccionado {
+            case .dia:
+                return calendar.isDate(gasto.fecha, inSameDayAs: fechaReferencia)
+            case .semana:
+                return calendar.isDate(gasto.fecha, equalTo: fechaReferencia, toGranularity: .weekOfYear)
+            case .mes:
+                return calendar.isDate(gasto.fecha, equalTo: fechaReferencia, toGranularity: .month)
+            case .anio:
+                return calendar.isDate(gasto.fecha, equalTo: fechaReferencia, toGranularity: .year)
+            }
+        }
+        
+        // Agrupar y sumar los gastos por categoría
+        let gastosAgrupados = Dictionary(grouping: gastosFiltrados, by: { $0.categoria })
+            .map { (categoria, gastos) -> CategoriaGasto in
+                let total = gastos.reduce(0) { $0 + $1.cantidad }
+                return CategoriaGasto(categoria: categoria, total: total)
+            }
+        
+        return gastosAgrupados
+    }
+    
+    // Calcular el total gastado en el período seleccionado
+    private var totalGastado: Double {
+        gastosFiltradosYAgrupados.reduce(0) { $0 + $1.total }
+    }
+    
+    private var totalGastadoView: some View {
+        Text("Total gastado: $\(totalGastado, specifier: "%.2f")")
+            .font(.title3)
+            .padding(10)                         // padding interno
+            .frame(maxWidth: .infinity)        // se expande en ancho
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(.systemGray6))
+                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2)
+            )
+            .padding(.horizontal, 10)          // mismo padding horizontal que el picker
+    }
+    
+    private var graficoGastos: some View {
+        ZStack {
+            GraficoDona(gastos: gastosFiltradosYAgrupados, height: dynamicHeight)
+                
+
+            VStack {
+                Spacer()
+                HStack {
+                    Spacer()
+                    Button(action: { mostrarModal = true }) {
+                        Image("plus")
+                            .resizable()
+                            .frame(width: 50, height: 50, alignment: .bottom)
+                    }
+                }
+            }
+        }
+        .padding() // Padding interno para separar el contenido del borde
+            .background(
+                RoundedRectangle(cornerRadius: 10)
+                    .fill(Color(.systemGray6)) // Color gris claro
+                    .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
+            )
+            .padding(.horizontal, 10) // Padding externo para separar el rectángulo de otros elementos en la pantalla
+
     }
     
     var body: some View {
         NavigationView {
-            VStack {
-                 
+            VStack(spacing: 12) {
+                totalGastadoView
                 dateSelector
-                .padding() // Padding interno para separar el contenido del borde
-                .background(
-                    RoundedRectangle(cornerRadius: 10)
-                        .fill(Color(.systemGray6)) // Color gris claro
-                        .shadow(color: Color.black.opacity(0.2), radius: 5, x: 0, y: 2) // Sombra
-                )
-                .padding() // Padding externo para separar el rectángulo de otros elementos en la pantalla
-
-                
+                graficoGastos
 
                 List {
                     ForEach(gastosAgrupados.keys.sorted(), id: \.self) { categoria in
@@ -115,11 +189,7 @@ struct GastosView: View {
                 }
                 .listStyle(InsetGroupedListStyle())
                 
-                Button(action: { mostrarModal = true }) {
-                    Image("plus")
-                        .resizable()
-                        .frame(width: 50, height: 50, alignment: .bottom)
-                }
+                
             }
             .onAppear {
                 saveLastAccess()

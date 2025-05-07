@@ -25,6 +25,13 @@ class Gasto {
     }
 }
 
+// Estructura para representar el total por categoría
+struct CategoriaGasto: Identifiable {
+    let id = UUID()
+    let categoria: String
+    let total: Double
+}
+
 class MockData {
     static let shared = MockData()
     

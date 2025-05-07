@@ -16,7 +16,7 @@ struct GasTrackyApp: App {
 
     var body: some Scene {
         WindowGroup {
-            MainTabView()
+            GastosView()
                 .preferredColorScheme(isDarkMode ? .dark : .light)
                 .environmentObject(viewModel)
         }
